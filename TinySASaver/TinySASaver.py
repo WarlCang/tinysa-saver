@@ -1992,7 +1992,7 @@ class TDRWindow(QtWidgets.QWidget):
 
         s11 = []
         for d in self.app.data:
-            s11.append(np.complex(d.re, d.im))
+            s11.append(complex(d.re, d.im))
 
         window = np.blackman(len(self.app.data))
 

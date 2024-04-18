@@ -831,7 +831,7 @@ class Calibration:
     e30 = []     # Port match
     e10e32 = []  # Transmission
 
-    shortIdeal = np.complex(-1, 0)
+    shortIdeal = complex(-1, 0)
     useIdealShort = True
     shortL0 = 5.7 * 10E-12
     shortL1 = -8960 * 10E-24
@@ -841,7 +841,7 @@ class Calibration:
     # These numbers look very large, considering what Keysight suggests their numbers are.
 
     useIdealOpen = True
-    openIdeal = np.complex(1, 0)
+    openIdeal = complex(1, 0)
     openC0 = 2.1 * 10E-14  # Subtract 50fF for the tinySA calibration if tinySA is calibrated?
     openC1 = 5.67 * 10E-23
     openC2 = -2.39 * 10E-31
@@ -853,7 +853,7 @@ class Calibration:
     loadL = 0
     loadC = 0
     loadLength = 0
-    loadIdeal = np.complex(0, 0)
+    loadIdeal = complex(0, 0)
 
     useIdealThrough = True
     throughLength = 0
@@ -881,11 +881,11 @@ class Calibration:
             else:
                 return False, "All calibration data sets must be the same size."
         self.frequencies = [int] * len(self.s11short)
-        self.e00 = [np.complex] * len(self.s11short)
-        self.e11 = [np.complex] * len(self.s11short)
-        self.deltaE = [np.complex] * len(self.s11short)
-        self.e30 = [np.complex] * len(self.s11short)
-        self.e10e32 = [np.complex] * len(self.s11short)
+        self.e00 = [complex] * len(self.s11short)
+        self.e11 = [complex] * len(self.s11short)
+        self.deltaE = [complex] * len(self.s11short)
+        self.e30 = [complex] * len(self.s11short)
+        self.e10e32 = [complex] * len(self.s11short)
         logger.debug("Calculating calibration for %d points.", len(self.s11short))
         if self.useIdealShort:
             logger.debug("Using ideal values.")
@@ -903,7 +903,7 @@ class Calibration:
             if self.useIdealShort:
                 g1 = self.shortIdeal
             else:
-                Zsp = np.complex(0, 1) * 2 * pi * f * (self.shortL0 +
+                Zsp = complex(0, 1) * 2 * pi * f * (self.shortL0 +
                                                        self.shortL1 * f +
                                                        self.shortL2 * f**2 +
                                                        self.shortL3 * f**3)
@@ -911,28 +911,28 @@ class Calibration:
                 # (lower case) gamma = 2*pi*f
                 # e^j*2*gamma*length
                 # Referencing https://arxiv.org/pdf/1606.02446.pdf (18) - (21)
-                g1 = gammaShort * np.exp(np.complex(0, 1) * 2 * 2 * math.pi * f * self.shortLength * -1)
+                g1 = gammaShort * np.exp(complex(0, 1) * 2 * 2 * math.pi * f * self.shortLength * -1)
 
             if self.useIdealOpen:
                 g2 = self.openIdeal
             else:
                 divisor = (2 * pi * f * (self.openC0 + self.openC1 * f + self.openC2 * f**2 + self.openC3 * f**3))
                 if divisor != 0:
-                    Zop = np.complex(0, -1) / divisor
+                    Zop = complex(0, -1) / divisor
                     gammaOpen = ((Zop/50) - 1) / ((Zop/50) + 1)
-                    g2 = gammaOpen * np.exp(np.complex(0, 1) * 2 * 2 * math.pi * f * self.openLength * -1)
+                    g2 = gammaOpen * np.exp(complex(0, 1) * 2 * 2 * math.pi * f * self.openLength * -1)
                 else:
                     g2 = self.openIdeal
             if self.useIdealLoad:
                 g3 = self.loadIdeal
             else:
-                Zl = self.loadR + (np.complex(0, 1) * 2 * math.pi * f * self.loadL)
+                Zl = self.loadR + (complex(0, 1) * 2 * math.pi * f * self.loadL)
                 g3 = ((Zl/50)-1) / ((Zl/50)+1)
-                g3 = g3 * np.exp(np.complex(0, 1) * 2 * 2 * math.pi * f * self.loadLength * -1)
+                g3 = g3 * np.exp(complex(0, 1) * 2 * 2 * math.pi * f * self.loadLength * -1)
 
-            gm1 = np.complex(self.s11short[i].re, self.s11short[i].im)
-            gm2 = np.complex(self.s11open[i].re, self.s11open[i].im)
-            gm3 = np.complex(self.s11load[i].re, self.s11load[i].im)
+            gm1 = complex(self.s11short[i].re, self.s11short[i].im)
+            gm2 = complex(self.s11open[i].re, self.s11open[i].im)
+            gm3 = complex(self.s11load[i].re, self.s11load[i].im)
 
             try:
                 denominator = g1*(g2-g3)*gm1 + g2*g3*gm2 - g2*g3*gm3 - (g2*gm2-g3*gm3)*g1
@@ -950,10 +950,10 @@ class Calibration:
                                           + str(self.s11open[i].freq) + " Hz."
 
             if self.isValid2Port():
-                self.e30[i] = np.complex(self.s21isolation[i].re, self.s21isolation[i].im)
-                s21m = np.complex(self.s21through[i].re, self.s21through[i].im)
+                self.e30[i] = complex(self.s21isolation[i].re, self.s21isolation[i].im)
+                s21m = complex(self.s21through[i].re, self.s21through[i].im)
                 if not self.useIdealThrough:
-                    gammaThrough = np.exp(np.complex(0, 1) * 2 * math.pi * self.throughLength * f * -1)
+                    gammaThrough = np.exp(complex(0, 1) * 2 * math.pi * self.throughLength * f * -1)
                     s21m = s21m / gammaThrough
                 self.e10e32[i] = (s21m - self.e30[i]) * (1 - (self.e11[i]*self.e11[i]))
 
@@ -962,7 +962,7 @@ class Calibration:
         return self.isCalculated, "Calibration successful."
 
     def correct11(self, re, im, freq):
-        s11m = np.complex(re, im)
+        s11m = complex(re, im)
         distance = 10**10
         index = 0
         for i in range(len(self.s11short)):
@@ -975,7 +975,7 @@ class Calibration:
         return s11.real, s11.imag
 
     def correct21(self, re, im, freq):
-        s21m = np.complex(re, im)
+        s21m = complex(re, im)
         distance = 10**10
         index = 0
         for i in range(len(self.s21through)):
@@ -987,14 +987,14 @@ class Calibration:
 
     @staticmethod
     def correctDelay11(d: Datapoint, delay):
-        input_val = np.complex(d.re, d.im)
-        output = input_val * np.exp(np.complex(0, 1) * 2 * 2 * math.pi * d.freq * delay * -1)
+        input_val = complex(d.re, d.im)
+        output = input_val * np.exp(complex(0, 1) * 2 * 2 * math.pi * d.freq * delay * -1)
         return Datapoint(d.freq, output.real, output.imag)
 
     @staticmethod
     def correctDelay21(d: Datapoint, delay):
-        input_val = np.complex(d.re, d.im)
-        output = input_val * np.exp(np.complex(0, 1) * 2 * math.pi * d.freq * delay * -1)
+        input_val = complex(d.re, d.im)
+        output = input_val * np.exp(complex(0, 1) * 2 * math.pi * d.freq * delay * -1)
         return Datapoint(d.freq, output.real, output.imag)
 
     def saveCalibration(self, filename):
