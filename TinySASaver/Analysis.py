@@ -15,6 +15,8 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import logging
 import math
+import csv
+import datetime
 
 from PyQt5 import QtWidgets
 
@@ -1033,12 +1035,23 @@ class SimplePeakSearchAnalysis(Analysis):
             logger.warning("Searching for peaks, but neither looking at positive nor negative?")  # Both is not yet in
             return
 
+        peak_frequency = self.app.data[idx_peak].freq
+        peak_value = data[idx_peak]
+
         self.peak_frequency.setText(RFTools.formatFrequency(self.app.data[idx_peak].freq))
         self.peak_value.setText(str(round(data[idx_peak], 3)) + suffix)
 
         if self.checkbox_move_marker.isChecked() and len(self.app.markers) >= 1:
             self.app.markers[0].setFrequency(str(self.app.data[idx_peak].freq))
             self.app.markers[0].frequencyInput.setText(RFTools.formatFrequency(self.app.data[idx_peak].freq))
+
+        self.record_peak_to_csv(peak_frequency, peak_value, suffix)
+
+    def record_peak_to_csv(self, frequency, value, suffix):
+        current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        with open('peak_data.csv', 'a', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow([current_time, frequency, value, suffix])
 
 
 class PeakSearchAnalysis(Analysis):
