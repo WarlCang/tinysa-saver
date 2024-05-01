@@ -1048,7 +1048,7 @@ class SimplePeakSearchAnalysis(Analysis):
         self.record_peak_to_csv(peak_frequency, peak_value, suffix)
 
     def record_peak_to_csv(self, frequency, value, suffix):
-        current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        current_time = datetime.datetime.now().strftime("%Y:%m:%d %H:%M:%S")
         with open('peak_data.csv', 'a', newline='') as file:
             writer = csv.writer(file)
             writer.writerow([current_time, frequency, value, suffix])
